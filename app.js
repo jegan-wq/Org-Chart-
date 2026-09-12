@@ -13,6 +13,7 @@ const ICONS = {
   martech: "📈",
   hr: "🧑\u200d🤝\u200d🧑",
   operations: "⚙️",
+  strategy: "🤝",
   advisory: "🧭",
 };
 

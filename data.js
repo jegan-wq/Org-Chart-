@@ -84,6 +84,7 @@ const DEFAULT_DATA = {
   simpleDepts: [
     { id: "hr", label: "HR", customName: "", people: [person(), person(), person(), person()] },
     { id: "operations", label: "Operations", customName: "", people: [person(), person(), person(), person()] },
+    { id: "strategy", label: "Strategy & Alliances", customName: "", people: [person(), person(), person(), person()] },
     { id: "advisory", label: "Advisory", customName: "", people: [person(), person(), person(), person()] },
   ],
 };

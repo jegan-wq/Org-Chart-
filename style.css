@@ -15,6 +15,7 @@
   --martech:#D6336C; --martech-bg:#FBE7EF;
   --hr:#2179C7; --hr-bg:#E9F2FC;
   --ops:#4A5B6B; --ops-bg:#EBEEF0;
+  --strategy:#0E8074; --strategy-bg:#E1F3F0;
   --advisory:#5B5FCF; --advisory-bg:#ECECFB;
 
   --radius-sm: 6px;
@@ -173,6 +174,7 @@ h1,h2,h3, .brand, .box-name, .col-title, .footer-brand{
 .martech .col-header{ background: var(--martech); } .martech .col-body{ background: var(--martech-bg); }
 .hr .col-header{ background: var(--hr); } .hr .col-body{ background: var(--hr-bg); }
 .operations .col-header{ background: var(--ops); } .operations .col-body{ background: var(--ops-bg); }
+.strategy .col-header{ background: var(--strategy); } .strategy .col-body{ background: var(--strategy-bg); }
 .advisory .col-header{ background: var(--advisory); } .advisory .col-body{ background: var(--advisory-bg); }
 
 .col-header-text{ display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
