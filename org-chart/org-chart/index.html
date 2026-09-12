@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zensciences — Organization Map</title>
+<meta name="description" content="Live, editable organization chart for Zensciences." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="toolbar">
+    <div class="toolbar-left">
+      <span class="toolbar-title" id="sync-title">Editing live</span>
+      <span class="toolbar-hint" id="sync-hint">Click any name or title to edit. Changes save to this browser automatically.</span>
+    </div>
+    <div class="toolbar-actions">
+      <button id="btn-export-json" class="btn btn-ghost">Export data (JSON)</button>
+      <button id="btn-import-json" class="btn btn-ghost">Import data (JSON)</button>
+      <button id="btn-export-datajs" class="btn btn-ghost">Export as data.js</button>
+      <button id="btn-reset" class="btn btn-danger-ghost">Reset to default</button>
+      <input type="file" id="import-file-input" accept="application/json" hidden />
+    </div>
+  </header>
+
+  <main id="chart-root" class="chart-root">
+    <!-- Rendered entirely by app.js -->
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
