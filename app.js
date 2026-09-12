@@ -5,6 +5,9 @@
 // ============================================================================
 
 const STORAGE_KEY = "zensciences-org-chart-v1";
+const REMOTE_ENDPOINT = "/api/state";
+let remoteAvailable = false; // becomes true once /api/state responds successfully
+let pushTimer = null;
 
 const ICONS = {
   finance: "💰",
@@ -41,6 +44,56 @@ function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn("Could not save data.", e);
+  }
+  scheduleRemoteSave();
+}
+
+async function fetchRemoteState() {
+  try {
+    const res = await fetch(REMOTE_ENDPOINT, { cache: "no-store" });
+    if (!res.ok) return { connected: false, data: null };
+    const json = await res.json();
+    return { connected: true, data: json.data ?? null };
+  } catch (e) {
+    return { connected: false, data: null };
+  }
+}
+
+async function pushRemoteState() {
+  if (!remoteAvailable) return;
+  try {
+    const res = await fetch(REMOTE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state),
+    });
+    if (!res.ok) remoteAvailable = false;
+    updateSyncStatus();
+  } catch (e) {
+    remoteAvailable = false;
+    updateSyncStatus();
+  }
+}
+
+function scheduleRemoteSave() {
+  if (!remoteAvailable) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushRemoteState, 600);
+}
+
+function updateSyncStatus() {
+  const title = document.getElementById("sync-title");
+  const hint = document.getElementById("sync-hint");
+  if (!title || !hint) return;
+  if (remoteAvailable) {
+    title.textContent = "Editing live — synced for everyone";
+    title.style.color = "#2FD9A6";
+    hint.textContent = "Click any name or title to edit. Changes save instantly for every visitor.";
+  } else {
+    title.textContent = "Editing live — this browser only";
+    title.style.color = "#F0B84B";
+    hint.textContent =
+      "Click any name or title to edit. No shared storage is connected yet, so changes only save in this browser — see README.md to turn on live sync for everyone.";
   }
 }
 
@@ -398,6 +451,7 @@ document.getElementById("import-file-input").addEventListener("change", (e) => {
       const parsed = JSON.parse(reader.result);
       state = parsed;
       saveState();
+      pushRemoteState();
       render();
       showToast("Data imported");
     } catch (err) {
@@ -412,9 +466,30 @@ document.getElementById("btn-reset").addEventListener("click", () => {
   if (!confirm("Reset this browser's chart back to the default data? This can't be undone.")) return;
   state = clone(DEFAULT_DATA);
   saveState();
+  pushRemoteState();
   render();
   showToast("Reset to default");
 });
 
 // ---------------------------------------------------------------------------
-render();
+async function bootstrap() {
+  // Render immediately with whatever's local, so the page never looks empty.
+  render();
+  updateSyncStatus();
+
+  const remote = await fetchRemoteState();
+  remoteAvailable = remote.connected;
+
+  if (remote.connected && remote.data) {
+    // Shared data exists — it wins over anything local.
+    state = remote.data;
+    saveState();
+    render();
+  } else if (remote.connected && !remote.data) {
+    // Connected but empty (first run) — seed it with whatever we have now.
+    pushRemoteState();
+  }
+  updateSyncStatus();
+}
+
+bootstrap();

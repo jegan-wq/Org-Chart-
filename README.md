@@ -7,29 +7,38 @@ edit it right on the page.
 It's a plain static site (`index.html`, `style.css`, `app.js`, `data.js`) — no
 build step, no server, so it's easy to host on Vercel straight from GitHub.
 
-## How editing works (important to understand)
+## How editing works
 
-This is a static site with **no shared database**. When someone edits a name
-in their browser, it's saved to that browser's local storage only — it won't
-appear for other people who open the same link.
+Every edit now saves to a small shared backend (Upstash Redis, connected via
+Vercel's Storage marketplace — free tier is plenty for this). That means:
 
-Two ways to make an edit "official" for everyone:
+- Anyone who opens the live link and edits a name sees it update for
+  **everyone else** who has the page open, automatically. No export/import
+  needed.
+- The toolbar tells you the current status: **"Editing live — synced for
+  everyone"** (green) means it's connected; **"Editing live — this browser
+  only"** (amber) means the backend isn't connected yet, so edits are only
+  saved locally until you do the one-time setup below.
 
-1. **Edit in the browser, then export.** Click **Export as data.js** in the
-   toolbar, which downloads a ready-made `data.js` with everything currently
-   on screen. Replace the `data.js` file in this repo with it, then commit and
-   push — Vercel will redeploy automatically and everyone will see the update
-   as the new default.
-2. **Edit `data.js` directly** in your code editor (it's a plain, commented
-   JS object) if you'd rather type values in than click through the UI.
+You still have **Export data (JSON)** / **Import data (JSON)** for backups,
+and **Export as data.js** if you'd rather bake a set of values in as the
+permanent starting point in code (useful for onboarding a fresh deployment
+with real names already filled in). **Reset to default** wipes the shared
+data back to whatever's in `data.js`.
 
-Use **Export data (JSON)** / **Import data (JSON)** to back up or move your
-in-browser edits between machines/browsers, and **Reset to default** to wipe
-a browser's local edits back to whatever is in `data.js`.
+### One-time setup: connect shared storage
 
-> Want everyone's edits to sync live for real (like a shared Google Sheet)?
-> That needs a small backend (e.g. Vercel KV or Postgres) behind the save
-> calls in `app.js` — happy to add that next if it'd help.
+1. In your Vercel project, open the **Storage** tab.
+2. Click **Browse Marketplace**, choose **Upstash** → **Redis**, and follow
+   the prompts to create a free database and connect it to this project.
+   Vercel will add the required environment variables automatically.
+3. Redeploy (Vercel usually does this for you after connecting a new
+   integration; if not, just push any small commit, or use **Redeploy** in
+   the Vercel dashboard).
+4. Reload the site — the toolbar should switch to "synced for everyone".
+
+Until you do this, the app still works fine — it just behaves like the
+original version, saving only to each visitor's own browser.
 
 ## 1. Push this to GitHub
 
@@ -66,5 +75,7 @@ whenever you replace `data.js` per the workflow above.
 |---|---|
 | `index.html` | Page shell + toolbar |
 | `style.css` | All visual styling / brand colors |
-| `data.js` | Default org data — the source of truth for a fresh browser |
-| `app.js` | Renders the chart from data and handles editing/add/remove/export |
+| `data.js` | Default org data — the seed if shared storage is empty |
+| `app.js` | Renders the chart, handles editing, and talks to `/api/state` |
+| `api/state.js` | Serverless function: reads/writes the shared state in Redis |
+| `package.json` | Declares the `@upstash/redis` dependency the API function needs |
